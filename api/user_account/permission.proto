@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package user_account;
+
+option go_package = "github.com/photo-pixels/user-account/api";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service PermissionService {
+  rpc CreatePermission(CreatePermissionRequest) returns (CreatePermissionResponse) {
+    option (google.api.http) = {
+      post: "/v1/permission";
+      body: "*";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Cоздание новой пермиссии";
+    };
+  }
+  rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/permission/role";
+      body: "*";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Создание новой роли";
+    };
+  };
+  rpc AddPermissionToRole(AddPermissionToRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      patch: "/v1/permission/role/{role_id}";
+      body: "*";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Добавить пермиссию в роль";
+    };
+  };
+  rpc GetUserPermissions(GetUserPermissionsRequest) returns (GetUserPermissionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/permission/user/{user_id}";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Список пермисий пользователей";
+    };
+  };
+  rpc AddRoleToUser(AddRoleToUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      patch: "/v1/permission/user/role/{user_id}";
+      body: "*";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Добавить роль пользователю";
+    };
+  };
+}
+
+message Permission {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message Role {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message CreateRoleRequest {
+  string name = 1;
+  string description = 2;
+}
+
+message CreateRoleResponse {
+  Role role = 1;
+}
+
+message CreatePermissionRequest {
+  string name = 1;
+  string description = 2;
+}
+
+message CreatePermissionResponse {
+  Permission permission = 1;
+}
+
+message AddPermissionToRoleRequest {
+    string role_id = 1;
+    string permission_id = 2;
+}
+
+message GetUserPermissionsRequest {
+  string user_id = 1;
+}
+
+message GetUserPermissionsResponse {
+  repeated Permission permissions = 1;
+}
+
+message AddRoleToUserRequest {
+  string user_id = 1;
+  string role_id = 2;
+}

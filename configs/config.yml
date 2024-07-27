@@ -1,0 +1,20 @@
+server:
+  host: "localhost"
+  http_port: 8080
+  grpc_port: 8181
+  max_send_message_length: 2147483647
+  max_receive_message_length: 63554432
+  shutdown_timeout: 3
+
+auth:
+  allow_registration: true
+
+session_manager:
+  audience: "PhotoLibraryServer"
+  issuer: "PhotoLibrary"
+  access_token_duration: "15m"
+  refresh_token_duration: "48h"
+
+jwt_helper:
+  private_key_file: "configs/ssl/private.key.pem"
+  public_key_file: "configs/ssl/public.key.pem"
