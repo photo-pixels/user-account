@@ -1,6 +1,11 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
 
 // TransformToName трансформация имени
 func TransformToName(str string) string {
@@ -12,7 +17,9 @@ func TransformToName(str string) string {
 
 	// Преобразуем первое слово в строке
 	firstWord := strings.SplitN(str, " ", 2)[0]
-	capitalizedFirst := strings.Title(strings.ToLower(firstWord))
+
+	caser := cases.Title(language.BrazilianPortuguese)
+	capitalizedFirst := caser.String(strings.ToLower(firstWord))
 
 	// Преобразуем оставшуюся часть строки в нижний регистр
 	rest := strings.ToLower(str[len(firstWord):])
