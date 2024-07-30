@@ -22,7 +22,7 @@ func (h *PermissionHandler) CreatePermission(ctx context.Context, request *desc.
 		Description: request.Description,
 	})
 	if err != nil {
-		return nil, handler.HandleError(err, "h.permission.CreatePermission")
+		return nil, handler.HandleError(err, "h.permission.SavePermission")
 	}
 
 	return &desc.CreatePermissionResponse{
@@ -58,7 +58,7 @@ func (h *PermissionHandler) CreateRole(ctx context.Context, request *desc.Create
 		Description: request.Description,
 	})
 	if err != nil {
-		return nil, handler.HandleError(err, "h.permission.CreateRole")
+		return nil, handler.HandleError(err, "h.permission.SaveRole")
 	}
 
 	return &desc.CreateRoleResponse{

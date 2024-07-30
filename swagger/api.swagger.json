@@ -475,15 +475,15 @@
         ]
       }
     },
-    "/v1/user/profile": {
+    "/v1/user/{user_id}": {
       "get": {
         "summary": "Данные пользователя",
-        "operationId": "UserService_User",
+        "operationId": "UserService_GetUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/UserResponse"
+              "$ref": "#/definitions/GetUserResponse"
             }
           },
           "default": {
@@ -496,8 +496,8 @@
         "parameters": [
           {
             "name": "user_id",
-            "in": "query",
-            "required": false,
+            "in": "path",
+            "required": true,
             "type": "string"
           }
         ],
@@ -653,6 +653,33 @@
         }
       }
     },
+    "GetUserResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/AuthStatus"
+        },
+        "firstname": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "patronymic": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "LoginRequest": {
       "type": "object",
       "properties": {
@@ -768,33 +795,6 @@
             "type": "object",
             "$ref": "#/definitions/Any"
           }
-        }
-      }
-    },
-    "UserResponse": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "status": {
-          "$ref": "#/definitions/AuthStatus"
-        },
-        "firstname": {
-          "type": "string"
-        },
-        "surname": {
-          "type": "string"
-        },
-        "patronymic": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
         }
       }
     }

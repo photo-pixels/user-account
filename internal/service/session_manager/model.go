@@ -14,7 +14,7 @@ type PermissionSession struct {
 
 // AccessSession данные авторизации
 type AccessSession struct {
-	UserID      uuid.UUID           `json:"UserID"`
+	UserID      uuid.UUID           `json:"user_id"`
 	Permissions []PermissionSession `json:"permissions"`
 }
 

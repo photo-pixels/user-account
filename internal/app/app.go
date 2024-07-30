@@ -3,8 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-
-	"github.com/photo-pixels/user-account/internal/user_case/permission"
+	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 
 	"github.com/photo-pixels/platform/config"
 	"github.com/photo-pixels/platform/log"
@@ -16,6 +15,7 @@ import (
 	"github.com/photo-pixels/user-account/internal/service/session_manager"
 	"github.com/photo-pixels/user-account/internal/storage"
 	"github.com/photo-pixels/user-account/internal/user_case/auth"
+	"github.com/photo-pixels/user-account/internal/user_case/permission"
 	"github.com/photo-pixels/user-account/internal/user_case/user"
 )
 
@@ -44,11 +44,22 @@ func NewApp(cfgProvider config.Provider) *App {
 }
 
 // Create создание сервисов
-func (a *App) Create(_ context.Context) error {
+func (a *App) Create(ctx context.Context) error {
 	var err error
 	a.logger = log.NewLogger()
+
+	pgCfg, err := a.getPgConnConfig()
+	if err != nil {
+		return fmt.Errorf("getPgConnConfig: %w", err)
+	}
+	pool, err := pgrepo.NewPgConn(ctx, pgCfg)
+	if err != nil {
+		return fmt.Errorf("newPgConn: %w", err)
+	}
+
 	a.storageAdapter = storage.NewStorageAdapter(
 		a.logger,
+		pool,
 	)
 
 	a.serverCfg, err = a.getServerConfig()

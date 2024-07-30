@@ -241,8 +241,11 @@ func (s *Service) Registration(ctx context.Context, form form.RegisterForm) erro
 	}
 
 	newUser := model.User{
-		Base: model.NewBase(),
-		ID:   uuid.New(),
+		Base:       model.NewBase(),
+		ID:         uuid.New(),
+		FirstName:  form.FirstName,
+		Surname:    form.Surname,
+		Patronymic: form.Patronymic,
 	}
 
 	newAuth := model.Auth{

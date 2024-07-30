@@ -11,8 +11,8 @@ import (
 	desc "github.com/photo-pixels/user-account/pkg/gen/api/user_account"
 )
 
-// User получение данных пользователя
-func (h *UserHandler) User(ctx context.Context, request *desc.UserRequest) (*desc.UserResponse, error) {
+// GetUser получение данных пользователя
+func (h *UserHandler) GetUser(ctx context.Context, request *desc.GetUserRequest) (*desc.GetUserResponse, error) {
 	userID, err := uuid.Parse(request.UserId)
 	if err != nil {
 		return nil, server.ErrInvalidArgument(fmt.Errorf("userID is invalid: %w", err))

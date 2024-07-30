@@ -64,7 +64,7 @@ func (s *Service) SendConfirmCode(ctx context.Context, userID uuid.UUID, confirm
 	// Не страшно если два раза отправим, страшно если кода не будет в базе
 	// TODO: Реализация отправки кодов
 	fmt.Println("*** *** *** *** *** *** ***")
-	fmt.Printf("Confirm code: %s, for personID: %s", confirmCode.Code, userID.String())
+	fmt.Printf("Confirm code: %s, for userID: %s", confirmCode.Code, userID.String())
 	fmt.Println("*** *** *** *** *** *** ***")
 
 	if err = s.storage.SaveConfirmCode(ctx, confirmCode); err != nil {
@@ -75,12 +75,12 @@ func (s *Service) SendConfirmCode(ctx context.Context, userID uuid.UUID, confirm
 }
 
 // DeactivateCode деактивация кода подтверждения
-func (s *Service) DeactivateCode(ctx context.Context, personID uuid.UUID, confirmCodeType model.ConfirmCodeType) error {
+func (s *Service) DeactivateCode(ctx context.Context, userID uuid.UUID, confirmCodeType model.ConfirmCodeType) error {
 	update := model.UpdateConfirmCode{
 		BaseUpdate: model.NewBaseUpdate(),
 		Active:     model.NewUpdateField(false),
 	}
-	if err := s.storage.UpdateConfirmCode(ctx, personID, confirmCodeType, update); err != nil {
+	if err := s.storage.UpdateConfirmCode(ctx, userID, confirmCodeType, update); err != nil {
 		return fmt.Errorf("s.storage.UpdateConfirmCode: %w", err)
 	}
 	return nil

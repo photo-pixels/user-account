@@ -45,7 +45,7 @@ func (h *PermissionHandler) RegistrationServerHandlers(_ *http.ServeMux) {
 
 // RegisterServiceHandlerFromEndpoint .
 func (h *PermissionHandler) RegisterServiceHandlerFromEndpoint() server.HandlerFromEndpoint {
-	return desc.RegisterAuthServiceHandlerFromEndpoint
+	return desc.RegisterPermissionServiceHandlerFromEndpoint
 }
 
 // RegisterServiceServer .

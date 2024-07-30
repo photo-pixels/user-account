@@ -25,12 +25,12 @@ func mapToAuthStatus(status model.AuthStatus) (desc.AuthStatus, error) {
 	}
 }
 
-func mapUserResponse(user dto.User) (*desc.UserResponse, error) {
+func mapUserResponse(user dto.User) (*desc.GetUserResponse, error) {
 	status, err := mapToAuthStatus(user.Status)
 	if err != nil {
 		return nil, err
 	}
-	return &desc.UserResponse{
+	return &desc.GetUserResponse{
 		Id:         user.ID.String(),
 		Status:     status,
 		Firstname:  user.Firstname,

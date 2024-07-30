@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 
 	"github.com/photo-pixels/platform/server"
 
@@ -19,7 +20,20 @@ const (
 	JwtHelperName = "jwt_helper"
 	// AuthName данные для авторизации
 	AuthName = "auth"
+	// PgConnectionName конфиг pg
+	PgConnectionName = "pg_db"
 )
+
+func (a *App) getPgConnConfig() (pgrepo.PgConfig, error) {
+
+	var config pgrepo.PgConfig
+	err := a.cfgProvider.PopulateByKey(PgConnectionName, &config)
+	if err != nil {
+		return pgrepo.PgConfig{}, fmt.Errorf("PopulateByKey: %w", err)
+	}
+
+	return config, nil
+}
 
 func (a *App) getServerConfig() (server.Config, error) {
 

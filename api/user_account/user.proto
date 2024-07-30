@@ -11,9 +11,9 @@ import "google/protobuf/empty.proto";
 import "api/user_account/auth.proto";
 
 service UserService {
-  rpc User(UserRequest)  returns (UserResponse) {
+  rpc GetUser(GetUserRequest)  returns (GetUserResponse) {
     option (google.api.http) = {
-      get: "/v1/user/profile";
+      get: "/v1/user/{user_id}";
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Данные пользователя";
@@ -21,11 +21,11 @@ service UserService {
   };
 }
 
-message UserRequest {
+message GetUserRequest {
   string user_id = 1;
 }
 
-message UserResponse {
+message GetUserResponse {
   string id = 1;
   AuthStatus status = 2;
   string firstname = 3;

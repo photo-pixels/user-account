@@ -2,6 +2,7 @@ package permission
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
@@ -20,12 +21,18 @@ import (
 // Storage интерфейс хранения данных
 type Storage interface {
 	storage.Transactor
-	CreatePermission(ctx context.Context, permission model.Permission) error
+	SavePermission(ctx context.Context, permission model.Permission) error
 	AddPermissionToRole(ctx context.Context, roleID uuid.UUID, permissionID uuid.UUID) error
-	CreateRole(ctx context.Context, role model.Role) error
+	SaveRole(ctx context.Context, role model.Role) error
 	AddRoleToUser(ctx context.Context, userID uuid.UUID, roleID uuid.UUID) error
-	GetPermissions(ctx context.Context, params model.GetPermissions) ([]model.Permission, error)
-	GetRoles(ctx context.Context, params model.GetRoles) ([]model.Role, error)
+	GetUserPermissions(ctx context.Context, userID uuid.UUID) ([]model.Permission, error)
+	GetRolePermissions(ctx context.Context, roleID uuid.UUID) ([]model.Permission, error)
+	GetPermissionByName(ctx context.Context, name string) (model.Permission, error)
+	GetRoleByName(ctx context.Context, name string) (model.Role, error)
+	GetPermission(ctx context.Context, id uuid.UUID) (model.Permission, error)
+	GetRole(ctx context.Context, nid uuid.UUID) (model.Role, error)
+	GetRolePermission(ctx context.Context, roleID uuid.UUID, permissionID uuid.UUID) (model.Permission, error)
+	GetUserRole(ctx context.Context, userID uuid.UUID, roleID uuid.UUID) (model.Role, error)
 }
 
 // Service роли и права пользователей
@@ -53,8 +60,13 @@ func (s *Service) CreateRole(ctx context.Context, form form.CreateRole) (dto.Rol
 	}
 
 	// Проверка роли с этим именем
-	if err := s.checkConflictRoleName(ctx, form.Name); err != nil {
-		return dto.Role{}, err
+	_, err := s.storage.GetRoleByName(ctx, form.Name)
+	switch {
+	case err == nil:
+		return dto.Role{}, serviceerr.Conflictf("Permission %s aready exists", form.Name)
+	case errors.Is(err, storage.ErrNotFound): // Значит не найдено, продолжаем
+	default:
+		return dto.Role{}, serviceerr.MakeErr(err, "s.storage.GetRoleByName")
 	}
 
 	role := model.Role{
@@ -64,8 +76,8 @@ func (s *Service) CreateRole(ctx context.Context, form form.CreateRole) (dto.Rol
 		Description: form.Description,
 	}
 
-	if err := s.storage.CreateRole(ctx, role); err != nil {
-		return dto.Role{}, serviceerr.MakeErr(err, "s.storage.CreateRole")
+	if err := s.storage.SaveRole(ctx, role); err != nil {
+		return dto.Role{}, serviceerr.MakeErr(err, "s.storage.SaveRole")
 	}
 
 	return mapToRole(role), nil
@@ -78,8 +90,13 @@ func (s *Service) CreatePermission(ctx context.Context, form form.CreatePermissi
 	}
 
 	// Проверка пермисии с этим именем
-	if err := s.checkConflictPermissionName(ctx, form.Name); err != nil {
-		return dto.Permission{}, err
+	_, err := s.storage.GetPermissionByName(ctx, form.Name)
+	switch {
+	case err == nil:
+		return dto.Permission{}, serviceerr.Conflictf("Role %s aready exists", form.Name)
+	case errors.Is(err, storage.ErrNotFound): // Значит не найдено, продолжаем
+	default:
+		return dto.Permission{}, serviceerr.MakeErr(err, "s.storage.GetPermissionByName")
 	}
 
 	permission := model.Permission{
@@ -89,8 +106,8 @@ func (s *Service) CreatePermission(ctx context.Context, form form.CreatePermissi
 		Description: form.Description,
 	}
 
-	if err := s.storage.CreatePermission(ctx, permission); err != nil {
-		return dto.Permission{}, serviceerr.MakeErr(err, "s.storage.CreatePermission")
+	if err := s.storage.SavePermission(ctx, permission); err != nil {
+		return dto.Permission{}, serviceerr.MakeErr(err, "s.storage.SavePermission")
 	}
 
 	return mapToPermission(permission), nil
@@ -103,16 +120,31 @@ func (s *Service) AddPermissionToRole(ctx context.Context, form form.AddPermissi
 	}
 
 	// Проверить существование RoleID
-	if err := s.checkRoleExistByID(ctx, form.RoleID); err != nil {
-		return err
+	_, err := s.storage.GetRole(ctx, form.RoleID)
+	switch {
+	case err == nil:
+	case errors.Is(err, storage.ErrNotFound):
+		return serviceerr.NotFoundf("Role %s not found", form.RoleID.String())
+	default:
+		serviceerr.MakeErr(err, "s.storage.GetRoleByName")
 	}
 	// Проверить существование PermissionID
-	if err := s.checkPermissionExistByID(ctx, form.PermissionID); err != nil {
-		return err
+	_, err = s.storage.GetPermission(ctx, form.PermissionID)
+	switch {
+	case err == nil:
+	case errors.Is(err, storage.ErrNotFound):
+		return serviceerr.NotFoundf("Permission %s not found", form.RoleID.String())
+	default:
+		serviceerr.MakeErr(err, "s.storage.GetPermission")
 	}
 	// Проверка наличии этой пермиссии в роли
-	if err := s.checkConflictPermissionInRole(ctx, form.RoleID, form.PermissionID); err != nil {
-		return err
+	_, err = s.storage.GetRolePermission(ctx, form.RoleID, form.PermissionID)
+	switch {
+	case err == nil:
+		return serviceerr.Conflictf("Permission %s aready exists", form.PermissionID.String())
+	case errors.Is(err, storage.ErrNotFound):
+	default:
+		serviceerr.MakeErr(err, "s.storage.GetPermission")
 	}
 
 	if err := s.storage.AddPermissionToRole(ctx, form.RoleID, form.PermissionID); err != nil {
@@ -128,9 +160,7 @@ func (s *Service) GetUserPermissions(ctx context.Context, form form.GetUserPermi
 		return nil, serviceerr.InvalidInputErr(err, "Invalid input parameters")
 	}
 
-	permissions, err := s.storage.GetPermissions(ctx, model.GetPermissions{
-		UserIDIn: []uuid.UUID{form.UserID},
-	})
+	permissions, err := s.storage.GetUserPermissions(ctx, form.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("s.storage.GetUserPermissions: %w", err)
 	}
@@ -147,12 +177,22 @@ func (s *Service) AddRoleToUser(ctx context.Context, form form.AddRoleToUser) er
 	}
 
 	// Проверить существование RoleID
-	if err := s.checkRoleExistByID(ctx, form.RoleID); err != nil {
-		return err
+	_, err := s.storage.GetRole(ctx, form.RoleID)
+	switch {
+	case err == nil:
+	case errors.Is(err, storage.ErrNotFound):
+		return serviceerr.NotFoundf("Role %s not found", form.RoleID.String())
+	default:
+		serviceerr.MakeErr(err, "s.storage.GetRoleByName")
 	}
 	// Проврка наличии этой роли у пользователя
-	if err := s.checkConflictRoleInUser(ctx, form.UserID, form.RoleID); err != nil {
-		return err
+	_, err = s.storage.GetUserRole(ctx, form.UserID, form.RoleID)
+	switch {
+	case err == nil:
+		return serviceerr.Conflictf("Role %s aready exists", form.RoleID.String())
+	case errors.Is(err, storage.ErrNotFound):
+	default:
+		serviceerr.MakeErr(err, "s.storage.GetUserRole")
 	}
 
 	if err := s.storage.AddRoleToUser(ctx, form.UserID, form.RoleID); err != nil {

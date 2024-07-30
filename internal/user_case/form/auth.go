@@ -41,10 +41,10 @@ type EmailAvailableForm struct {
 
 // LogoutForm форма для logout
 type LogoutForm struct {
-	Token string `validate:"required,max=128"`
+	Token string `validate:"required,max=2048"`
 }
 
 // RefreshForm форма для рефреша авторизационных данных по рефреш токену
 type RefreshForm struct {
-	Token string `validate:"required,max=128"`
+	Token string `validate:"required,max=2048"`
 }
