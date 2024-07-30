@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package user_account;
+
+option go_package = "github.com/photo-pixels/user-account/api";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "api/user_account/auth.proto";
+
+service UserService {
+  rpc GetUser(GetUserRequest)  returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/v1/user/{user_id}";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Данные пользователя";
+    };
+  };
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  string id = 1;
+  AuthStatus status = 2;
+  string firstname = 3;
+  string surname = 4;
+  optional string patronymic = 5;
+  string email = 6;
+  google.protobuf.Timestamp created_at = 7;
+}

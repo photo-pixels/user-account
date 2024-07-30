@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package user_account;
+
+option go_package = "github.com/photo-pixels/user-account/api";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "User account API";
+    version: "0.1";
+  };
+  schemes: HTTP;
+  host: "localhost:8080";
+  consumes: "application/json";
+  produces: "application/json";
+};
