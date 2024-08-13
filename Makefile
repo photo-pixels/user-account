@@ -4,11 +4,9 @@ LOCAL_DB_DSN:="host=$(LOCAL_DB_HOST) dbname=$(LOCAL_DB_NAME) sslmode=disable"
 
 .PHONY: generate
 generate:
+	mkdir -p vendor.protogen
+	cp -R api/user_account vendor.protogen/user_account
 	buf generate
-
-.PHONY: run
-run-photos-server:
-	go run cmd/main.go
 
 .PHONY: format
 format:

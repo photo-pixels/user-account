@@ -10,7 +10,7 @@ import (
 
 	"github.com/photo-pixels/user-account/internal/user_case/dto"
 	"github.com/photo-pixels/user-account/internal/user_case/form"
-	desc "github.com/photo-pixels/user-account/pkg/gen/api/user_account"
+	desc "github.com/photo-pixels/user-account/pkg/gen/user_account"
 )
 
 // AuthUserCase юзеркейс авторизации

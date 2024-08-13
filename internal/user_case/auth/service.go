@@ -371,14 +371,14 @@ func (s *Service) Logout(ctx context.Context, form form.LogoutForm) error {
 
 	refreshSession, err := s.sessionService.GetRefreshSessionByToken(form.Token)
 	if err != nil {
-		return serviceerr.PermissionDeniedErr(fmt.Errorf("invalid token"))
+		return serviceerr.PermissionDeniedf("Invalid token")
 	}
 	err = s.storage.UpdateRefreshTokenStatus(ctx, refreshSession.RefreshTokenID, model.RefreshTokenStatusLogout)
 	switch {
 	case err == nil:
 		return nil
 	case errors.Is(err, storage.ErrNotFound):
-		return serviceerr.PermissionDeniedErr(fmt.Errorf("invalid token"))
+		return serviceerr.PermissionDeniedf("Invalid token")
 	default:
 		return serviceerr.MakeErr(err, "s.storage.UpdateRefreshTokenStatus")
 	}
@@ -411,7 +411,7 @@ func (s *Service) RefreshToken(ctx context.Context, form form.RefreshForm) (dto.
 	switch {
 	case err == nil:
 	case errors.Is(err, storage.ErrNotFound):
-		return dto.AuthData{}, serviceerr.PermissionDeniedErr(fmt.Errorf("invalid token"))
+		return dto.AuthData{}, serviceerr.PermissionDeniedf("Invalid token")
 	default:
 		return dto.AuthData{}, serviceerr.MakeErr(err, "s.storage.GetLastActiveRefreshToken")
 	}
@@ -437,7 +437,7 @@ func (s *Service) RefreshToken(ctx context.Context, form form.RefreshForm) (dto.
 	switch {
 	case err == nil:
 	case errors.Is(err, storage.ErrNotFound):
-		return dto.AuthData{}, serviceerr.PermissionDeniedErr(fmt.Errorf("invalid token"))
+		return dto.AuthData{}, serviceerr.PermissionDeniedf("Invalid token")
 	default:
 		return dto.AuthData{}, serviceerr.MakeErr(err, "s.storage.UpdateRefreshTokenStatus")
 	}

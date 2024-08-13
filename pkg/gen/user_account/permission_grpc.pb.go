@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.4.0
 // - protoc             (unknown)
-// source: api/user_account/permission.proto
+// source: user_account/permission.proto
 
 package api
 
@@ -259,5 +259,5 @@ var PermissionService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/user_account/permission.proto",
+	Metadata: "user_account/permission.proto",
 }
