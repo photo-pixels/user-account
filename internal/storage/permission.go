@@ -3,11 +3,13 @@ package storage
 import (
 	"context"
 	"errors"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/samber/lo"
+
 	"github.com/photo-pixels/user-account/internal/model"
 	"github.com/photo-pixels/user-account/internal/storage/db"
-	"github.com/samber/lo"
 )
 
 // SavePermission .

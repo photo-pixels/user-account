@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/photo-pixels/platform/log"
@@ -65,10 +66,11 @@ type Service struct {
 	cfg                Config
 	logger             log.Logger
 	storage            Storage
-	validate           *validator.Validate
 	confirmCodeService ConfirmCodeService
 	passwordService    PasswordService
 	sessionService     SessionManagerService
+	validate           *validator.Validate
+	trans              ut.Translator
 }
 
 // NewService новый сервис
@@ -79,26 +81,28 @@ func NewService(logger log.Logger,
 	passwordService PasswordService,
 	sessionService SessionManagerService,
 ) *Service {
+	validate, trans := utils.NewValidator()
 	return &Service{
 		cfg:                cfg,
 		logger:             logger.Named("auth_service"),
 		storage:            storage,
-		validate:           utils.NewValidator(),
 		confirmCodeService: confirmCodeService,
 		passwordService:    passwordService,
 		sessionService:     sessionService,
+		validate:           validate,
+		trans:              trans,
 	}
 }
 
 // SendInvite Отправка приглашения зарегистрироваться
 func (s *Service) SendInvite(ctx context.Context, form form.SendInviteForm) error {
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "SendInviteForm")
 	}
 	if emailExists, err := s.storage.EmailExists(ctx, form.Email); err != nil {
 		return serviceerr.MakeErr(err, "s.storage.EmailExists")
 	} else if emailExists {
-		return serviceerr.Conflictf("email already exists")
+		return serviceerr.Conflictf("Email already exists")
 	}
 
 	newUser := model.User{
@@ -139,7 +143,7 @@ func (s *Service) SendInvite(ctx context.Context, form form.SendInviteForm) erro
 // ActivateInvite активация инвайта
 func (s *Service) ActivateInvite(ctx context.Context, form form.ActivateInviteForm) error {
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "ActivateInviteForm")
 	}
 
 	// Поиск кода подтверждения в базе
@@ -162,11 +166,11 @@ func (s *Service) ActivateInvite(ctx context.Context, form form.ActivateInviteFo
 	}
 
 	if auth.Status == model.AuthStatusActivated {
-		return serviceerr.Conflictf("user already activated")
+		return serviceerr.Conflictf("User already activated")
 	}
 
 	if auth.Status == model.AuthStatusBlocked {
-		return serviceerr.PermissionDeniedf("user blocked")
+		return serviceerr.PermissionDeniedf("User blocked")
 	}
 
 	// Генерация соли
@@ -217,7 +221,7 @@ func (s *Service) ActivateInvite(ctx context.Context, form form.ActivateInviteFo
 // Registration регистрация нового пользователя
 func (s *Service) Registration(ctx context.Context, form form.RegisterForm) error {
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "RegisterForm")
 	}
 
 	if !s.cfg.AllowRegistration {
@@ -225,7 +229,7 @@ func (s *Service) Registration(ctx context.Context, form form.RegisterForm) erro
 	}
 
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "RegisterForm")
 	}
 
 	if emailExists, err := s.storage.EmailExists(ctx, form.Email); err != nil {
@@ -281,7 +285,7 @@ func (s *Service) Registration(ctx context.Context, form form.RegisterForm) erro
 // ActivateRegistration активация инвайта
 func (s *Service) ActivateRegistration(ctx context.Context, form form.ActivateRegisterForm) error {
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "ActivateRegisterForm")
 	}
 
 	// Поиск кода подтверждения в базе
@@ -337,7 +341,7 @@ func (s *Service) ActivateRegistration(ctx context.Context, form form.ActivateRe
 // Login авторизация пользователя
 func (s *Service) Login(ctx context.Context, form form.LoginForm) (dto.AuthData, error) {
 	if err := s.validate.Struct(form); err != nil {
-		return dto.AuthData{}, serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return dto.AuthData{}, serviceerr.InvalidInput(s.trans, err, "LoginForm")
 	}
 
 	userAuth, err := s.storage.GetAuthByEmail(ctx, form.Email)
@@ -354,10 +358,10 @@ func (s *Service) Login(ctx context.Context, form form.LoginForm) (dto.AuthData,
 	}
 
 	if userAuth.Status == model.AuthStatusBlocked {
-		return dto.AuthData{}, serviceerr.PermissionDeniedf("User is blocked")
+		return dto.AuthData{}, serviceerr.PermissionDeniedf("User account is blocked")
 	}
 	if userAuth.Status == model.AuthStatusNotActivated {
-		return dto.AuthData{}, serviceerr.PermissionDeniedf("Not activated user account")
+		return dto.AuthData{}, serviceerr.PermissionDeniedf("User account is not activated")
 	}
 
 	return s.createAuthData(ctx, userAuth)
@@ -366,7 +370,7 @@ func (s *Service) Login(ctx context.Context, form form.LoginForm) (dto.AuthData,
 // Logout разлогинить пользователя по рефреш токену
 func (s *Service) Logout(ctx context.Context, form form.LogoutForm) error {
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "LogoutForm")
 	}
 
 	refreshSession, err := s.sessionService.GetRefreshSessionByToken(form.Token)
@@ -387,7 +391,7 @@ func (s *Service) Logout(ctx context.Context, form form.LogoutForm) error {
 // EmailAvailable проверка доступности email
 func (s *Service) EmailAvailable(ctx context.Context, form form.EmailAvailableForm) (bool, error) {
 	if err := s.validate.Struct(form); err != nil {
-		return false, serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return false, serviceerr.InvalidInput(s.trans, err, "EmailAvailableForm")
 	}
 
 	emailExists, err := s.storage.EmailExists(ctx, form.Email)
@@ -400,7 +404,7 @@ func (s *Service) EmailAvailable(ctx context.Context, form form.EmailAvailableFo
 // RefreshToken обновление авторизации по рефрештокену
 func (s *Service) RefreshToken(ctx context.Context, form form.RefreshForm) (dto.AuthData, error) {
 	if err := s.validate.Struct(form); err != nil {
-		return dto.AuthData{}, serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return dto.AuthData{}, serviceerr.InvalidInput(s.trans, err, "RefreshForm")
 	}
 
 	refreshSession, err := s.sessionService.GetRefreshSessionByToken(form.Token)

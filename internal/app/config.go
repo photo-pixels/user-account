@@ -2,12 +2,12 @@ package app
 
 import (
 	"fmt"
-	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 
 	"github.com/photo-pixels/platform/server"
 
 	"github.com/photo-pixels/user-account/internal/service/jwt_helper"
 	"github.com/photo-pixels/user-account/internal/service/session_manager"
+	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 	"github.com/photo-pixels/user-account/internal/user_case/auth"
 )
 
