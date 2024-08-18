@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 
 	"github.com/photo-pixels/platform/config"
 	"github.com/photo-pixels/platform/log"
@@ -14,6 +13,7 @@ import (
 	"github.com/photo-pixels/user-account/internal/service/password"
 	"github.com/photo-pixels/user-account/internal/service/session_manager"
 	"github.com/photo-pixels/user-account/internal/storage"
+	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 	"github.com/photo-pixels/user-account/internal/user_case/auth"
 	"github.com/photo-pixels/user-account/internal/user_case/permission"
 	"github.com/photo-pixels/user-account/internal/user_case/user"

@@ -11,18 +11,6 @@ message Paginator {
   uint32 limit = 2;
 }
 
-message ServerError {
-  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    json_schema: {
-      title: "ServerError",
-      description: "Custom error response"
-    }
-  };
-  uint32 code = 1;
-  string message = 2;
-  repeated ErrorInfo details = 3;
-}
-
 message ErrorInfo {
   string description = 2;
   repeated FieldViolation field_violations = 4;

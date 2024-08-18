@@ -4,5 +4,5 @@
 # Buf
 ```
 buf dep update
-buf genereate
+buf generate
 ```

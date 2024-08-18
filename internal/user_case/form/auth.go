@@ -2,7 +2,7 @@ package form
 
 // SendInviteForm отправление инвайта на присоединение в системе
 type SendInviteForm struct {
-	Email string `validate:"required,email"`
+	Email string `validate:"required,email,min=3,max=128"`
 }
 
 // ActivateInviteForm активация инвайта
@@ -16,8 +16,8 @@ type ActivateInviteForm struct {
 
 // LoginForm форма для логина
 type LoginForm struct {
-	Email    string `validate:"required,max=128"`
-	Password string `validate:"required,max=128"`
+	Email    string `validate:"required,email,min=3,max=128"`
+	Password string `validate:"required,min=6,max=128"`
 }
 
 // RegisterForm форма для регистрации
@@ -25,8 +25,8 @@ type RegisterForm struct {
 	FirstName  string  `validate:"required,min=3,max=128"`
 	Surname    string  `validate:"required,min=3,max=128"`
 	Patronymic *string `validate:"omitempty,min=3,max=128"`
-	Email      string  `validate:"required,max=128"`
-	Password   string  `validate:"required,max=128"`
+	Email      string  `validate:"required,email,min=3,max=128"`
+	Password   string  `validate:"required,min=6,max=128"`
 }
 
 // ActivateRegisterForm активация регистрации
@@ -36,7 +36,7 @@ type ActivateRegisterForm struct {
 
 // EmailAvailableForm форма для проверки доступности email
 type EmailAvailableForm struct {
-	Email string `validate:"required,max=128"`
+	Email string `validate:"required,email,min=3,max=128"`
 }
 
 // LogoutForm форма для logout

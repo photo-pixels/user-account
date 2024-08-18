@@ -2,12 +2,12 @@ package app
 
 import (
 	"fmt"
-	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 
 	"github.com/photo-pixels/platform/server"
 
 	"github.com/photo-pixels/user-account/internal/service/jwt_helper"
 	"github.com/photo-pixels/user-account/internal/service/session_manager"
+	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 	"github.com/photo-pixels/user-account/internal/user_case/auth"
 )
 
@@ -25,7 +25,6 @@ const (
 )
 
 func (a *App) getPgConnConfig() (pgrepo.PgConfig, error) {
-
 	var config pgrepo.PgConfig
 	err := a.cfgProvider.PopulateByKey(PgConnectionName, &config)
 	if err != nil {
@@ -36,7 +35,6 @@ func (a *App) getPgConnConfig() (pgrepo.PgConfig, error) {
 }
 
 func (a *App) getServerConfig() (server.Config, error) {
-
 	var config server.Config
 	err := a.cfgProvider.PopulateByKey(ServerConfigName, &config)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/photo-pixels/platform/log"
@@ -40,23 +41,26 @@ type Service struct {
 	logger   log.Logger
 	storage  Storage
 	validate *validator.Validate
+	trans    ut.Translator
 }
 
 // NewService новый сервис
 func NewService(logger log.Logger,
 	storage Storage,
 ) *Service {
+	validate, trans := utils.NewValidator()
 	return &Service{
 		logger:   logger.Named("auth_service"),
 		storage:  storage,
-		validate: utils.NewValidator(),
+		validate: validate,
+		trans:    trans,
 	}
 }
 
 // CreateRole создание новой роли
 func (s *Service) CreateRole(ctx context.Context, form form.CreateRole) (dto.Role, error) {
 	if err := s.validate.Struct(form); err != nil {
-		return dto.Role{}, serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return dto.Role{}, serviceerr.InvalidInput(s.trans, err, "CreateRole")
 	}
 
 	// Проверка роли с этим именем
@@ -86,7 +90,7 @@ func (s *Service) CreateRole(ctx context.Context, form form.CreateRole) (dto.Rol
 // CreatePermission создание новой пермиссии
 func (s *Service) CreatePermission(ctx context.Context, form form.CreatePermission) (dto.Permission, error) {
 	if err := s.validate.Struct(form); err != nil {
-		return dto.Permission{}, serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return dto.Permission{}, serviceerr.InvalidInput(s.trans, err, "CreatePermission")
 	}
 
 	// Проверка пермисии с этим именем
@@ -116,7 +120,7 @@ func (s *Service) CreatePermission(ctx context.Context, form form.CreatePermissi
 // AddPermissionToRole добавить пермиссию в роль
 func (s *Service) AddPermissionToRole(ctx context.Context, form form.AddPermissionToRole) error {
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "AddPermissionToRole")
 	}
 
 	// Проверить существование RoleID
@@ -126,7 +130,7 @@ func (s *Service) AddPermissionToRole(ctx context.Context, form form.AddPermissi
 	case errors.Is(err, storage.ErrNotFound):
 		return serviceerr.NotFoundf("Role %s not found", form.RoleID.String())
 	default:
-		serviceerr.MakeErr(err, "s.storage.GetRoleByName")
+		return serviceerr.MakeErr(err, "s.storage.GetRoleByName")
 	}
 	// Проверить существование PermissionID
 	_, err = s.storage.GetPermission(ctx, form.PermissionID)
@@ -135,7 +139,7 @@ func (s *Service) AddPermissionToRole(ctx context.Context, form form.AddPermissi
 	case errors.Is(err, storage.ErrNotFound):
 		return serviceerr.NotFoundf("Permission %s not found", form.RoleID.String())
 	default:
-		serviceerr.MakeErr(err, "s.storage.GetPermission")
+		return serviceerr.MakeErr(err, "s.storage.GetPermission")
 	}
 	// Проверка наличии этой пермиссии в роли
 	_, err = s.storage.GetRolePermission(ctx, form.RoleID, form.PermissionID)
@@ -144,7 +148,7 @@ func (s *Service) AddPermissionToRole(ctx context.Context, form form.AddPermissi
 		return serviceerr.Conflictf("Permission %s aready exists", form.PermissionID.String())
 	case errors.Is(err, storage.ErrNotFound):
 	default:
-		serviceerr.MakeErr(err, "s.storage.GetPermission")
+		return serviceerr.MakeErr(err, "s.storage.GetPermission")
 	}
 
 	if err := s.storage.AddPermissionToRole(ctx, form.RoleID, form.PermissionID); err != nil {
@@ -157,7 +161,7 @@ func (s *Service) AddPermissionToRole(ctx context.Context, form form.AddPermissi
 // GetUserPermissions список пермисий пользователя
 func (s *Service) GetUserPermissions(ctx context.Context, form form.GetUserPermissions) ([]dto.Permission, error) {
 	if err := s.validate.Struct(form); err != nil {
-		return nil, serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return nil, serviceerr.InvalidInput(s.trans, err, "GetUserPermissions")
 	}
 
 	permissions, err := s.storage.GetUserPermissions(ctx, form.UserID)
@@ -173,7 +177,7 @@ func (s *Service) GetUserPermissions(ctx context.Context, form form.GetUserPermi
 // AddRoleToUser добавить роль пользователю
 func (s *Service) AddRoleToUser(ctx context.Context, form form.AddRoleToUser) error {
 	if err := s.validate.Struct(form); err != nil {
-		return serviceerr.InvalidInputErr(err, "Invalid input parameters")
+		return serviceerr.InvalidInput(s.trans, err, "AddRoleToUser")
 	}
 
 	// Проверить существование RoleID
@@ -183,7 +187,7 @@ func (s *Service) AddRoleToUser(ctx context.Context, form form.AddRoleToUser) er
 	case errors.Is(err, storage.ErrNotFound):
 		return serviceerr.NotFoundf("Role %s not found", form.RoleID.String())
 	default:
-		serviceerr.MakeErr(err, "s.storage.GetRoleByName")
+		return serviceerr.MakeErr(err, "s.storage.GetRoleByName")
 	}
 	// Проврка наличии этой роли у пользователя
 	_, err = s.storage.GetUserRole(ctx, form.UserID, form.RoleID)
@@ -192,7 +196,7 @@ func (s *Service) AddRoleToUser(ctx context.Context, form form.AddRoleToUser) er
 		return serviceerr.Conflictf("Role %s aready exists", form.RoleID.String())
 	case errors.Is(err, storage.ErrNotFound):
 	default:
-		serviceerr.MakeErr(err, "s.storage.GetUserRole")
+		return serviceerr.MakeErr(err, "s.storage.GetUserRole")
 	}
 
 	if err := s.storage.AddRoleToUser(ctx, form.UserID, form.RoleID); err != nil {

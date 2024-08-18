@@ -8,7 +8,7 @@ import (
 	"github.com/photo-pixels/platform/server"
 
 	"github.com/photo-pixels/user-account/internal/handler"
-	desc "github.com/photo-pixels/user-account/pkg/gen/api/user_account"
+	desc "github.com/photo-pixels/user-account/pkg/gen/user_account"
 )
 
 // GetUser получение данных пользователя
