@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/photo-pixels/platform/basemodel"
 	"github.com/samber/lo"
 
 	"github.com/photo-pixels/user-account/internal/model"
@@ -84,7 +85,7 @@ func (a *Adapter) AddRoleToUser(ctx context.Context, userID uuid.UUID, roleID uu
 
 func mapPermission(item db.Permission, _ int) model.Permission {
 	return model.Permission{
-		Base: model.Base{
+		Base: basemodel.Base{
 			CreateAt: item.CreatedAt,
 			UpdateAt: item.UpdatedAt,
 		},
@@ -96,7 +97,7 @@ func mapPermission(item db.Permission, _ int) model.Permission {
 
 func mapRole(item db.Role, _ int) model.Role {
 	return model.Role{
-		Base: model.Base{
+		Base: basemodel.Base{
 			CreateAt: item.CreatedAt,
 			UpdateAt: item.UpdatedAt,
 		},

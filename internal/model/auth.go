@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
 )
 
 // AuthStatus статус авторизации
@@ -34,7 +35,7 @@ const (
 
 // Auth авторизация пользователя
 type Auth struct {
-	Base
+	basemodel.Base
 	UserID       uuid.UUID
 	Email        string
 	PasswordHash []byte
@@ -43,14 +44,14 @@ type Auth struct {
 
 // UpdateAuth Обновление Auth
 type UpdateAuth struct {
-	BaseUpdate
-	PasswordHash UpdateField[[]byte]
-	Status       UpdateField[AuthStatus]
+	basemodel.BaseUpdate
+	PasswordHash basemodel.UpdateField[[]byte]
+	Status       basemodel.UpdateField[AuthStatus]
 }
 
 // RefreshToken структура рефреш токена
 type RefreshToken struct {
-	Base
+	basemodel.Base
 	ID     uuid.UUID
 	UserID uuid.UUID
 	Status RefreshTokenStatus

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
 	"github.com/photo-pixels/platform/serviceerr"
 	"github.com/samber/lo"
 
@@ -15,7 +16,7 @@ import (
 
 func (s *Service) createAuthData(ctx context.Context, personAuth model.Auth) (dto.AuthData, error) {
 	refreshToken := model.RefreshToken{
-		Base:   model.NewBase(),
+		Base:   basemodel.NewBase(),
 		ID:     uuid.New(),
 		UserID: personAuth.UserID,
 		Status: model.RefreshTokenStatusActive,

@@ -16,6 +16,7 @@ import (
 	"github.com/photo-pixels/user-account/internal/storage/pgrepo"
 	"github.com/photo-pixels/user-account/internal/user_case/auth"
 	"github.com/photo-pixels/user-account/internal/user_case/permission"
+	"github.com/photo-pixels/user-account/internal/user_case/token"
 	"github.com/photo-pixels/user-account/internal/user_case/user"
 )
 
@@ -36,6 +37,7 @@ type App struct {
 	authUserCase       *auth.Service
 	permissionUserCase *permission.Service
 	userUserCase       *user.Service
+	tokenUserCase      *token.Service
 }
 
 // NewApp новое приложение
@@ -114,6 +116,11 @@ func (a *App) Create(ctx context.Context) error {
 		a.storageAdapter,
 	)
 
+	a.tokenUserCase = token.NewService(
+		a.logger,
+		a.storageAdapter,
+	)
+
 	return nil
 }
 
@@ -140,4 +147,9 @@ func (a *App) PermissionUserCase() *permission.Service {
 // UserUserCase юзеркейс пользователей
 func (a *App) UserUserCase() *user.Service {
 	return a.userUserCase
+}
+
+// TokenUserCase юзеркейс токенов
+func (a *App) TokenUserCase() *token.Service {
+	return a.tokenUserCase
 }

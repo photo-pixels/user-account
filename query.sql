@@ -103,3 +103,24 @@ WHERE id = $1;
 -- name: GetRole :one
 SELECT id, created_at as created_at, updated_at, name, description FROM role
 WHERE id = $1;
+
+------------------------------------------------------------------------------------------------------------------------
+
+-- name: GetTokens :many
+SELECT id, user_id, title, token, token_type, created_at, updated_at, expired_at FROM token
+WHERE user_id=$1
+ORDER BY created_at;
+
+-- name: SaveToken :exec
+INSERT INTO token (id, user_id, title, token, token_type, created_at, updated_at, expired_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+
+-- name: DeleteToken :one
+DELETE FROM token
+WHERE id=$1 and user_id=$2
+RETURNING id;
+
+-- name: GetToken :one
+SELECT id, user_id, title, token, token_type, created_at, updated_at, expired_at FROM token
+WHERE token=$1
+LIMIT 1;

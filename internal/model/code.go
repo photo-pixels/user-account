@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
 )
 
 // ConfirmCodeType тип кода подтверждения
@@ -16,7 +17,7 @@ const (
 
 // ConfirmCode код подтверждения
 type ConfirmCode struct {
-	Base
+	basemodel.Base
 	Code   string
 	UserID uuid.UUID
 	Type   ConfirmCodeType
@@ -25,6 +26,6 @@ type ConfirmCode struct {
 
 // UpdateConfirmCode Обновление Person
 type UpdateConfirmCode struct {
-	BaseUpdate
-	Active UpdateField[bool]
+	basemodel.BaseUpdate
+	Active basemodel.UpdateField[bool]
 }

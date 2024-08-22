@@ -8,15 +8,16 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
 	"github.com/photo-pixels/platform/log"
 	"github.com/photo-pixels/platform/serviceerr"
+	"github.com/photo-pixels/platform/utils"
 	"github.com/samber/lo"
 
 	"github.com/photo-pixels/user-account/internal/model"
 	"github.com/photo-pixels/user-account/internal/storage"
 	"github.com/photo-pixels/user-account/internal/user_case/dto"
 	"github.com/photo-pixels/user-account/internal/user_case/form"
-	"github.com/photo-pixels/user-account/internal/utils"
 )
 
 // Storage интерфейс хранения данных
@@ -74,7 +75,7 @@ func (s *Service) CreateRole(ctx context.Context, form form.CreateRole) (dto.Rol
 	}
 
 	role := model.Role{
-		Base:        model.NewBase(),
+		Base:        basemodel.NewBase(),
 		ID:          uuid.New(),
 		Name:        form.Name,
 		Description: form.Description,
@@ -104,7 +105,7 @@ func (s *Service) CreatePermission(ctx context.Context, form form.CreatePermissi
 	}
 
 	permission := model.Permission{
-		Base:        model.NewBase(),
+		Base:        basemodel.NewBase(),
 		ID:          uuid.New(),
 		Name:        form.Name,
 		Description: form.Description,

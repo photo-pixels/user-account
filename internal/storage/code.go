@@ -8,6 +8,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/photo-pixels/platform/basemodel"
 
 	"github.com/photo-pixels/user-account/internal/model"
 	"github.com/photo-pixels/user-account/internal/storage/db"
@@ -49,7 +50,7 @@ func (a *Adapter) GetActiveConfirmCode(ctx context.Context, code string, confirm
 	}
 
 	return model.ConfirmCode{
-		Base: model.Base{
+		Base: basemodel.Base{
 			CreateAt: res.CreatedAt,
 			UpdateAt: res.UpdatedAt,
 		},

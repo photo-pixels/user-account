@@ -14,14 +14,14 @@ import (
 const (
 	// ServerConfigName конфиг сервера
 	ServerConfigName = "server"
+	// PgConnectionName конфиг pg
+	PgConnectionName = "pg_db"
 	// SessionManagerName конфиг менеджера сессии
 	SessionManagerName = "session_manager"
 	// JwtHelperName данные для jwt
 	JwtHelperName = "jwt_helper"
 	// AuthName данные для авторизации
 	AuthName = "auth"
-	// PgConnectionName конфиг pg
-	PgConnectionName = "pg_db"
 )
 
 func (a *App) getPgConnConfig() (pgrepo.PgConfig, error) {

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addPermissionToRole = `-- name: AddPermissionToRole :exec
@@ -40,6 +41,24 @@ type AddRoleToUserParams struct {
 func (q *Queries) AddRoleToUser(ctx context.Context, arg AddRoleToUserParams) error {
 	_, err := q.db.Exec(ctx, addRoleToUser, arg.UserID, arg.RoleID)
 	return err
+}
+
+const deleteToken = `-- name: DeleteToken :one
+DELETE FROM token
+WHERE id=$1 and user_id=$2
+RETURNING id
+`
+
+type DeleteTokenParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteToken(ctx context.Context, arg DeleteTokenParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, deleteToken, arg.ID, arg.UserID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const emailExists = `-- name: EmailExists :one
@@ -263,6 +282,65 @@ func (q *Queries) GetRolePermissions(ctx context.Context, roleID uuid.UUID) ([]P
 	return items, nil
 }
 
+const getToken = `-- name: GetToken :one
+SELECT id, user_id, title, token, token_type, created_at, updated_at, expired_at FROM token
+WHERE token=$1
+LIMIT 1
+`
+
+func (q *Queries) GetToken(ctx context.Context, token string) (Token, error) {
+	row := q.db.QueryRow(ctx, getToken, token)
+	var i Token
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Token,
+		&i.TokenType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ExpiredAt,
+	)
+	return i, err
+}
+
+const getTokens = `-- name: GetTokens :many
+
+SELECT id, user_id, title, token, token_type, created_at, updated_at, expired_at FROM token
+WHERE user_id=$1
+ORDER BY created_at
+`
+
+// ----------------------------------------------------------------------------------------------------------------------
+func (q *Queries) GetTokens(ctx context.Context, userID uuid.UUID) ([]Token, error) {
+	rows, err := q.db.Query(ctx, getTokens, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Token
+	for rows.Next() {
+		var i Token
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Token,
+			&i.TokenType,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ExpiredAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUser = `-- name: GetUser :one
 
 SELECT id, created_at, updated_at, firstname, surname, patronymic FROM users WHERE id = $1
@@ -475,6 +553,36 @@ func (q *Queries) SaveRole(ctx context.Context, arg SaveRoleParams) error {
 		arg.UpdatedAt,
 		arg.Name,
 		arg.Description,
+	)
+	return err
+}
+
+const saveToken = `-- name: SaveToken :exec
+INSERT INTO token (id, user_id, title, token, token_type, created_at, updated_at, expired_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+`
+
+type SaveTokenParams struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Title     string
+	Token     string
+	TokenType string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ExpiredAt pgtype.Timestamptz
+}
+
+func (q *Queries) SaveToken(ctx context.Context, arg SaveTokenParams) error {
+	_, err := q.db.Exec(ctx, saveToken,
+		arg.ID,
+		arg.UserID,
+		arg.Title,
+		arg.Token,
+		arg.TokenType,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.ExpiredAt,
 	)
 	return err
 }

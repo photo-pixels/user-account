@@ -2,12 +2,12 @@ package session_manager
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/photo-pixels/platform/log"
 	"github.com/photo-pixels/platform/server"
-	"github.com/photo-pixels/platform/serviceerr"
 
 	"github.com/photo-pixels/user-account/internal/service/jwt_helper"
 )
@@ -65,7 +65,7 @@ func (s *SessionManager) CreateTokenByAccessSession(session AccessSession) (Toke
 	}
 	accessToken, err := s.jwtHelper.CreateToken(accessClaims)
 	if err != nil {
-		return Token{}, serviceerr.MakeErr(err, "s.jwtHelper.CreateToken")
+		return Token{}, fmt.Errorf("s.jwtHelper.CreateToken: %w", err)
 	}
 
 	return Token{
@@ -88,7 +88,7 @@ func (s *SessionManager) CreateTokenByRefreshSession(refresh RefreshSession) (To
 	}
 	accessToken, err := s.jwtHelper.CreateToken(accessClaims)
 	if err != nil {
-		return Token{}, serviceerr.MakeErr(err, "s.jwtHelper.CreateToken")
+		return Token{}, fmt.Errorf("s.jwtHelper.CreateToken: %w", err)
 	}
 
 	return Token{

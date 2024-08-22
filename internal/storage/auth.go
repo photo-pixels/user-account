@@ -8,6 +8,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/photo-pixels/platform/basemodel"
 
 	"github.com/photo-pixels/user-account/internal/model"
 	"github.com/photo-pixels/user-account/internal/storage/db"
@@ -46,7 +47,7 @@ func (a *Adapter) GetAuth(ctx context.Context, userID uuid.UUID) (model.Auth, er
 	}
 
 	return model.Auth{
-		Base: model.Base{
+		Base: basemodel.Base{
 			CreateAt: res.CreatedAt,
 			UpdateAt: res.UpdatedAt,
 		},
@@ -97,7 +98,7 @@ func (a *Adapter) GetAuthByEmail(ctx context.Context, email string) (model.Auth,
 	}
 
 	return model.Auth{
-		Base: model.Base{
+		Base: basemodel.Base{
 			CreateAt: res.CreatedAt,
 			UpdateAt: res.UpdatedAt,
 		},

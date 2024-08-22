@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
 	"github.com/photo-pixels/platform/log"
 
 	"github.com/photo-pixels/user-account/internal/model"
@@ -53,7 +54,7 @@ func (s *Service) SendConfirmCode(ctx context.Context, userID uuid.UUID, confirm
 		return fmt.Errorf("utils.GenerateCode: %w", err)
 	}
 	confirmCode := model.ConfirmCode{
-		Base:   model.NewBase(),
+		Base:   basemodel.NewBase(),
 		Code:   code,
 		UserID: userID,
 		Type:   confirmType,
@@ -77,8 +78,8 @@ func (s *Service) SendConfirmCode(ctx context.Context, userID uuid.UUID, confirm
 // DeactivateCode деактивация кода подтверждения
 func (s *Service) DeactivateCode(ctx context.Context, userID uuid.UUID, confirmCodeType model.ConfirmCodeType) error {
 	update := model.UpdateConfirmCode{
-		BaseUpdate: model.NewBaseUpdate(),
-		Active:     model.NewUpdateField(false),
+		BaseUpdate: basemodel.NewBaseUpdate(),
+		Active:     basemodel.NewUpdateField(false),
 	}
 	if err := s.storage.UpdateConfirmCode(ctx, userID, confirmCodeType, update); err != nil {
 		return fmt.Errorf("s.storage.UpdateConfirmCode: %w", err)

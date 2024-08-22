@@ -198,6 +198,17 @@ type RolePermission struct {
 	CreatedAt    time.Time
 }
 
+type Token struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Title     string
+	Token     string
+	TokenType string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ExpiredAt pgtype.Timestamptz
+}
+
 type User struct {
 	ID         uuid.UUID
 	Firstname  string
