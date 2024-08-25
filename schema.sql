@@ -127,6 +127,22 @@ CREATE TABLE public.role_permission (
 
 
 
+CREATE TABLE public.token (
+    id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    title text NOT NULL,
+    token text NOT NULL,
+    token_type text NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    expired_at timestamp with time zone,
+    CONSTRAINT token_title_check CHECK ((length(title) <= 128)),
+    CONSTRAINT token_token_check CHECK ((length(token) <= 32)),
+    CONSTRAINT token_token_type_check CHECK ((length(token_type) <= 128))
+);
+
+
+
 CREATE TABLE public.user_role (
     user_id uuid NOT NULL,
     role_id uuid NOT NULL,
@@ -198,12 +214,30 @@ ALTER TABLE ONLY public.role
 
 
 
+ALTER TABLE ONLY public.token
+    ADD CONSTRAINT token_pkey PRIMARY KEY (id);
+
+
+
+ALTER TABLE ONLY public.token
+    ADD CONSTRAINT token_token_key UNIQUE (token);
+
+
+
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
 
 CREATE UNIQUE INDEX idx_role_permission ON public.role_permission USING btree (permission_id, role_id);
+
+
+
+CREATE INDEX idx_token_token ON public.token USING btree (token);
+
+
+
+CREATE INDEX idx_token_user_id ON public.token USING btree (user_id);
 
 
 

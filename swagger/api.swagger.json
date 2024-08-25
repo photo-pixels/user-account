@@ -12,6 +12,9 @@
       "name": "PermissionService"
     },
     {
+      "name": "TokenService"
+    },
+    {
       "name": "UserService"
     }
   ],
@@ -475,6 +478,139 @@
         ]
       }
     },
+    "/v1/tokens": {
+      "get": {
+        "summary": "Получение токенов пользователя",
+        "operationId": "TokenService_GetTokens",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetTokensResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TokenService"
+        ]
+      },
+      "post": {
+        "summary": "Создание токена для пользователя",
+        "operationId": "TokenService_CreateToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CreateTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TokenService"
+        ]
+      }
+    },
+    "/v1/tokens/{token_id}": {
+      "delete": {
+        "summary": "Удаление токена пользователя",
+        "operationId": "TokenService_DeleteToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token_id",
+            "description": "ID токена",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "description": "Пользователь выпустивший токен",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TokenService"
+        ]
+      }
+    },
+    "/v1/tokens/{token}": {
+      "get": {
+        "summary": "Получение токена",
+        "operationId": "TokenService_GetToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TokenService"
+        ]
+      }
+    },
     "/v1/user/{user_id}": {
       "get": {
         "summary": "Данные пользователя",
@@ -633,11 +769,61 @@
         }
       }
     },
+    "CreateTokenRequest": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Описание токена"
+        },
+        "token_type": {
+          "type": "string",
+          "title": "Тип токена"
+        },
+        "user_id": {
+          "type": "string",
+          "title": "Пользователь выпустивший токен"
+        },
+        "time_duration": {
+          "type": "string",
+          "title": "Время действия токена"
+        }
+      }
+    },
+    "CreateTokenResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "title": "Токен показываем только при создании, просим запомнить"
+        }
+      }
+    },
     "EmailAvailableResponse": {
       "type": "object",
       "properties": {
         "available": {
           "type": "boolean"
+        }
+      }
+    },
+    "GetTokenResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "$ref": "#/definitions/Token"
+        }
+      }
+    },
+    "GetTokensResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/Token"
+          }
         }
       }
     },
@@ -795,6 +981,28 @@
             "type": "object",
             "$ref": "#/definitions/Any"
           }
+        }
+      }
+    },
+    "Token": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Описание токена"
+        },
+        "token_type": {
+          "type": "string",
+          "title": "Тип токена"
+        },
+        "user_id": {
+          "type": "string",
+          "title": "Пользователь выпустивший токен"
+        },
+        "expired_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Время истечения токена"
         }
       }
     }

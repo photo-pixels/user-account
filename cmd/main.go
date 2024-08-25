@@ -41,6 +41,7 @@ func main() {
 		application.AuthUserCase(),
 		application.PermissionUserCase(),
 		application.UserUserCase(),
+		application.TokenUserCase(),
 	)
 	go func() {
 		err = srv.Start(ctx)

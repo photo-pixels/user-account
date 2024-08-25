@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
 )
 
 // User информация о пользователе
 type User struct {
-	Base
+	basemodel.Base
 	ID         uuid.UUID
 	FirstName  string
 	Surname    string
@@ -22,8 +23,8 @@ func (p User) FullName() string {
 
 // UpdateUser параметры обновления пользователей
 type UpdateUser struct {
-	BaseUpdate
-	FirstName  UpdateField[string]
-	Surname    UpdateField[string]
-	Patronymic UpdateField[*string]
+	basemodel.BaseUpdate
+	FirstName  basemodel.UpdateField[string]
+	Surname    basemodel.UpdateField[string]
+	Patronymic basemodel.UpdateField[*string]
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/photo-pixels/user-account/internal/handler/user_account/auth_handler"
 	"github.com/photo-pixels/user-account/internal/handler/user_account/permission_handler"
+	"github.com/photo-pixels/user-account/internal/handler/user_account/token_handler"
 	"github.com/photo-pixels/user-account/internal/handler/user_account/user_handler"
 )
 
@@ -23,6 +24,7 @@ func NewUserAccountServer(
 	authUserCase auth_handler.AuthUserCase,
 	permission permission_handler.PermissionUserCase,
 	userUserCase user_handler.UserUserCase,
+	tokenUserCase token_handler.TokenUserCase,
 ) *UserAccountServer {
 	return &UserAccountServer{
 		CustomServer: NewCustomServer(
@@ -31,6 +33,7 @@ func NewUserAccountServer(
 			auth_handler.NewHandler(logger, authUserCase),
 			permission_handler.NewHandler(logger, permission),
 			user_handler.NewHandler(logger, userUserCase),
+			token_handler.NewHandler(logger, tokenUserCase),
 		),
 	}
 }

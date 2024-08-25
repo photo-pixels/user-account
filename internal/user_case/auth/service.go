@@ -8,8 +8,10 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
 	"github.com/photo-pixels/platform/log"
 	"github.com/photo-pixels/platform/serviceerr"
+	"github.com/photo-pixels/platform/utils"
 
 	"github.com/photo-pixels/user-account/internal/model"
 	"github.com/photo-pixels/user-account/internal/service/codes"
@@ -17,7 +19,6 @@ import (
 	"github.com/photo-pixels/user-account/internal/storage"
 	"github.com/photo-pixels/user-account/internal/user_case/dto"
 	"github.com/photo-pixels/user-account/internal/user_case/form"
-	"github.com/photo-pixels/user-account/internal/utils"
 )
 
 // Config конфигурация авторизации
@@ -106,12 +107,12 @@ func (s *Service) SendInvite(ctx context.Context, form form.SendInviteForm) erro
 	}
 
 	newUser := model.User{
-		Base: model.NewBase(),
+		Base: basemodel.NewBase(),
 		ID:   uuid.New(),
 	}
 
 	newAuth := model.Auth{
-		Base:         model.NewBase(),
+		Base:         basemodel.NewBase(),
 		UserID:       newUser.ID,
 		Email:        form.Email,
 		PasswordHash: []byte{},
@@ -184,16 +185,16 @@ func (s *Service) ActivateInvite(ctx context.Context, form form.ActivateInviteFo
 	form.Patronymic = utils.TransformToNamePtr(form.Patronymic)
 
 	updateUser := model.UpdateUser{
-		BaseUpdate: model.NewBaseUpdate(),
-		FirstName:  model.NewUpdateField(form.FirstName),
-		Surname:    model.NewUpdateField(form.Surname),
-		Patronymic: model.NewUpdateField(form.Patronymic),
+		BaseUpdate: basemodel.NewBaseUpdate(),
+		FirstName:  basemodel.NewUpdateField(form.FirstName),
+		Surname:    basemodel.NewUpdateField(form.Surname),
+		Patronymic: basemodel.NewUpdateField(form.Patronymic),
 	}
 
 	updateAuth := model.UpdateAuth{
-		BaseUpdate:   model.NewBaseUpdate(),
-		PasswordHash: model.NewUpdateField(hash),
-		Status:       model.NewUpdateField(model.AuthStatusActivated),
+		BaseUpdate:   basemodel.NewBaseUpdate(),
+		PasswordHash: basemodel.NewUpdateField(hash),
+		Status:       basemodel.NewUpdateField(model.AuthStatusActivated),
 	}
 
 	err = s.storage.RunTransaction(ctx, func(ctxTx context.Context) error {
@@ -245,7 +246,7 @@ func (s *Service) Registration(ctx context.Context, form form.RegisterForm) erro
 	}
 
 	newUser := model.User{
-		Base:       model.NewBase(),
+		Base:       basemodel.NewBase(),
 		ID:         uuid.New(),
 		FirstName:  form.FirstName,
 		Surname:    form.Surname,
@@ -253,7 +254,7 @@ func (s *Service) Registration(ctx context.Context, form form.RegisterForm) erro
 	}
 
 	newAuth := model.Auth{
-		Base:         model.NewBase(),
+		Base:         basemodel.NewBase(),
 		UserID:       newUser.ID,
 		Email:        form.Email,
 		PasswordHash: hash,
@@ -316,8 +317,8 @@ func (s *Service) ActivateRegistration(ctx context.Context, form form.ActivateRe
 	}
 
 	updateAuth := model.UpdateAuth{
-		BaseUpdate: model.NewBaseUpdate(),
-		Status:     model.NewUpdateField(model.AuthStatusActivated),
+		BaseUpdate: basemodel.NewBaseUpdate(),
+		Status:     basemodel.NewUpdateField(model.AuthStatusActivated),
 	}
 
 	err = s.storage.RunTransaction(ctx, func(ctxTx context.Context) error {

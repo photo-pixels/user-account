@@ -1,10 +1,13 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/photo-pixels/platform/basemodel"
+)
 
 // Permission подель пермисии
 type Permission struct {
-	Base
+	basemodel.Base
 	ID          uuid.UUID
 	Name        string
 	Description string
@@ -12,7 +15,7 @@ type Permission struct {
 
 // Role роль
 type Role struct {
-	Base
+	basemodel.Base
 	ID          uuid.UUID
 	Name        string
 	Description string

@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package user_account;
+
+option go_package = "github.com/photo-pixels/user-account/api";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service TokenService {
+  rpc GetTokens(GetTokensRequest) returns (GetTokensResponse) {
+    option (google.api.http) = {
+      get: "/v1/tokens";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получение токенов пользователя";
+    };
+  };
+  rpc CreateToken(CreateTokenRequest) returns (CreateTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/tokens";
+      body: "*";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Создание токена для пользователя";
+    };
+  };
+  rpc DeleteToken(DeleteTokenRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/tokens/{token_id}";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Удаление токена пользователя";
+    };
+  };
+  rpc GetToken(GetTokenRequest) returns (GetTokenResponse)  {
+    option (google.api.http) = {
+      get: "/v1/tokens/{token}";
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получение токена";
+    };
+  };
+}
+
+message GetTokensRequest {
+  string user_id = 1;
+}
+
+message GetTokensResponse {
+  repeated Token items = 1;
+}
+
+message Token {
+  // Описание токена
+  string title = 1;
+  // Тип токена
+  string token_type = 2;
+  // Пользователь выпустивший токен
+  string user_id = 3;
+  // Время истечения токена
+  optional google.protobuf.Timestamp expired_at = 4;
+}
+
+message CreateTokenRequest {
+  // Описание токена
+  string title = 1;
+  // Тип токена
+  string token_type = 2;
+  // Пользователь выпустивший токен
+  string user_id = 3;
+  // Время действия токена
+  optional string time_duration = 4;
+}
+
+message CreateTokenResponse {
+  string token = 1; // Токен показываем только при создании, просим запомнить
+}
+
+message DeleteTokenRequest {
+  // ID токена
+  string token_id = 1;
+  // Пользователь выпустивший токен
+  string user_id = 2;
+}
+
+message GetTokenRequest {
+  string token = 1;
+}
+
+message GetTokenResponse {
+  Token token = 1;
+}

@@ -12,7 +12,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.21.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/jessevdk/go-flags v1.6.1
-	github.com/photo-pixels/platform v1.0.1
+	github.com/photo-pixels/platform v1.0.2
 	github.com/samber/lo v1.46.0
 	golang.org/x/crypto v0.24.0
 	golang.org/x/text v0.16.0
@@ -61,4 +61,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-// replace github.com/photo-pixels/platform v1.0.0 => ../platform
+// replace github.com/photo-pixels/platform v1.0.1 => ../platform

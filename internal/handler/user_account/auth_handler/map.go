@@ -14,6 +14,5 @@ func mapAuthData(res dto.AuthData) *desc.AuthData {
 		AccessTokenExpiration:  timestamppb.New(res.AccessTokenExpiration),
 		RefreshToken:           res.RefreshToken,
 		RefreshTokenExpiration: timestamppb.New(res.RefreshTokenExpiration),
-		// TODO: Roles
 	}
 }

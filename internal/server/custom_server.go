@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	interceptor "github.com/photo-pixels/platform/interseptors"
 	"github.com/photo-pixels/platform/log"
 	"github.com/photo-pixels/platform/server"
 	"google.golang.org/grpc"
-
-	"github.com/photo-pixels/user-account/internal/interceptor"
 )
 
 // CustomHandlerService хендлер касромного сервер
